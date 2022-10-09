@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" />
+    <title>Document</title>
+    <style>
+        button:hover {
+            opacity: 1;
+        }
+
+        td {
+            color: rgb(7, 0, 1);
+            height: 30px;
+            font-weight: bold;
+            font-weight: 400;
+        }
+
+        th {
+            font-weight: 600;
+        }
+
+        th {
+            height: 49px;
+            background: linear-gradient(to right, #ffffff 10%, #ff9999 100%);
+        }
+
+        td {
+            text-align: center;
+        }
+
+        /* Extra styles for the cancel button */
+        .cancelbtn {
+            padding: 14px 20px;
+            background-color: #f44336;
+        }
+
+
+        /* Add padding to container elements */
+        .container {
+            padding: 16px;
+        }
+
+        /* The Modal (background) */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: #474e5d;
+            padding-top: 50px;
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto 15% auto;
+            /* 5% from the top, 15% from the bottom and centered */
+            border: 1px solid #888;
+            width: 80%;
+            /* Could be more or less, depending on screen size */
+        }
+
+        /* Style the horizontal ruler */
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+
+        /* The Close Button (x) */
+        .close {
+            position: absolute;
+            right: 35px;
+            top: 15px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #f1f1f1;
+
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #f44336;
+            cursor: pointer;
+        }
+
+        /* Clear floats */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        /* Change styles for cancel button and signup button on extra small screens */
+        @media screen and (max-width: 300px) {
+            .cancelbtn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Welcome!</h2>
+    {% if user.is_authenticated %}
+    Hi {{ user.id }}!
+
+    <a href="/logout" class="btn btn-danger">Logout</a>
+    {% else %}
+    <a href="/login" class="btn btn-primary"><span class="glyphicon glyphicon-log-in"></span>Login</a>
+    <a href="/signup" class="btn btn-success">Signup</a>
+    {% endif %}
+    <div id="id01" class="modal">
+        <span onclick="document.getElementById('id01').style.display='none'" class="close"
+            title="Close Modal">&times;</span>
+        <form action="/edit/" method="post" style="width:40%; margin-left:30%; margin-top: 5%">
+            {% csrf_token %}
+            <input type="hidden" class="form-control" name="id1" id="id1">
+            <input type="hidden" class="form-control" name="userid1" id="userid1" value="{{user.id}}">
+
+            <div class="mb-3">
+                <label class="form-label">Quantity of jar</label>
+                <input type="number" class="form-control" name="quantity1" id="quantity1">
+
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="text" class="form-control" name="date1" id="date1">
+            </div>
+
+            <input type="submit" class="btn btn-primary" value="Submit">
+
+            {{ message }}
+
+        </form>
+    </div>
+    <div class="col-sm-10">
+        <table id="all">
+            <tr>
+                <th>Date</th>
+                <th>Quantity</th>
+            </tr>
+
+            {%for u in allusers%}
+
+            {% if u.User_id == user.id %}
+            <tr>
+                <input type="hidden" value="{{u.pk}}" id="id2">
+
+                <td>{{u.User_id}}</td>
+                <td>{{u.date}}</td>
+                <td>{{u.quantity}}</td>
+
+                <td><button type='submit' class='btn btn-primary' onclick='delete_data(this)'>Delete</button></td>
+                <td><button type='submit' class='btn btn-primary' value="{{u.pk}}" onclick='edit(this)'>Edit
+                    </button>
+                </td>
+            </tr>
+            {% endif %}
+            {%endfor%}
+        </table>
+    </div>
+</body>
+<script>
+    console.log(document.getElementById("id3").value)
+    var d = document.getElementById("cost1").value;
+    console.log(d);
+    var modal = document.getElementById('id01');
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function edit(clickbutton) {
+        alert(clickbutton.value)
+        var mytr1 = clickbutton.parentElement.parentElement;
+        var alltd1 = mytr1.getElementsByTagName("td");
+
+        document.getElementById("id1").value = clickbutton.value;
+        document.getElementById("userid1").value = alltd1[0].innerHTML;
+        document.getElementById("date1").value = alltd1[1].innerHTML;
+
+        document.getElementById("quantity1").value = alltd1[2].innerHTML;
+
+        document.getElementById('id01').style.display = 'block';
+    }
+</script>
+
+</html>

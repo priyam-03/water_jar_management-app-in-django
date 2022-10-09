@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Water</title>
+
+</head>
+
+<body>
+    <h2>Welcome!</h2>
+    {% if user.is_authenticated %}
+    Hi {{ user.username }}!
+
+    <a href="/logout" class="btn btn-danger">Logout</a>
+    {% else %}
+    <a href="/login" class="btn btn-primary"><span class="glyphicon glyphicon-log-in"></span>Login</a>
+    <a href="/signup" class="btn btn-success">Signup</a>
+    {% endif %}
+
+
+
+
+    <div class="row">
+        <div class="col-sm-5">
+
+            <form action="/savewater/" method="post" style="width:40%; margin-left:30%; margin-top: 5%">
+                {% csrf_token %}
+
+                <input type="hidden" class="form-control" name="userid" id="userid" value="{{user.id}}">
+
+
+                <div class="mb-3">
+                    <label class="form-label">Quantity of jar</label>
+                    <input type="number" class="form-control" name="quantity" id="quantity">
+
+                </div>
+                {{current_time.current_time}}
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="text" class="form-control" name="date" value="{{current_time}}">
+                </div>
+                <input type="submit" class="btn btn-primary" value="Submit">
+            </form>
+        </div>
+
+    </div>
+</body>
+<script>
+    function edit1() {
+
+        document.getElementById("date1").value = document.getElementById("charge").innerHTML;
+
+        document.getElementById('id02').style.display = "block";
+    }
+
+
+</script>
+</body>
+
+</html>
