@@ -1,3 +1,5 @@
+import razorpay
+from .models import Order, ProductInOrder, Cart
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -5,7 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout
 from django.shortcuts import HttpResponseRedirect
-from .models import Water, Cost , CustomUser
+from .models import Water, Cost, CustomUser
 from datetime import datetime
 from .form import CustomUserCreationForm, CustomUserChangeForm
 
@@ -140,42 +142,46 @@ def admindashboard(req):
         "table": table, "cost2": cost}
     return render(req, 'admindashboard.html', data1)
 
-# import razorpay
-# razorpay_client = razorpay.Client(auth=(settings.razorpay_id, settings.razorpay_account_id))
 
-# from .models import Order, ProductInOrder, Cart
+razorpay_client = razorpay.Client(
+    auth=(settings.razorpay_id, settings.razorpay_account_id))
 
-# @login_required
-# def payment(request):
-#     if request.method == "POST":
-#         try:
-#             cart = Cart.objects.get(user = request.user)
-#             products_in_cart = ProductInCart.objects.filter(cart = cart)
-#             final_price = 0
-#             if(len(products_in_cart)>0):
-#                 order = Order.objects.create(user = request.user, total_amount = 0)
-#                 # order.save()
-#                 for product in products_in_cart:
-#                     product_in_order = ProductInOrder.objects.create(order = order, product = product.product, quantity = product.quantity, price = product.product.price)
-#                     final_price = final_price + (product.product.price * product.quantity)
-#             else:
-#                 return HttpResponse("No product in cart")
-#         except:
-#             return HttpResponse("No product in cart")
 
-#         order.total_amount = final_price
-#         order.save()
+@login_required
+def payment(request):
+    if request.method == "POST":
+        try:
+            cart = Cart.objects.get(user=request.user)
+            products_in_cart = ProductInCart.objects.filter(cart=cart)
+            final_price = 0
+            if(len(products_in_cart) > 0):
+                order = Order.objects.create(user=request.user, total_amount=0)
+                # order.save()
+                for product in products_in_cart:
+                    product_in_order = ProductInOrder.objects.create(
+                        order=order, product=product.product, quantity=product.quantity, price=product.product.price)
+                    final_price = final_price + \
+                        (product.product.price * product.quantity)
+            else:
+                return HttpResponse("No product in cart")
+        except:
+            return HttpResponse("No product in cart")
 
-#         order_currency = 'INR'
+        order.total_amount = final_price
+        order.save()
 
-#         callback_url = 'http://'+ str(get_current_site(request))+"/handlerequest/"
-#         print(callback_url)
-#         notes = {'order-type': "basic order from the website", 'key':'value'}
-#         razorpay_order = razorpay_client.order.create(dict(amount=final_price*100, currency=order_currency, notes = notes, receipt=order.order_id, payment_capture='0'))
-#         print(razorpay_order['id'])
-#         order.razorpay_order_id = razorpay_order['id']
-#         order.save()
+        order_currency = 'INR'
 
-#         return render(request, 'firstapp/payment/paymentsummaryrazorpay.html', {'order':order, 'order_id': razorpay_order['id'], 'orderId':order.order_id, 'final_price':final_price, 'razorpay_merchant_id':settings.razorpay_id, 'callback_url':callback_url})
-#     else:
-#         return HttpResponse("505 Not Found")
+        callback_url = 'http://' + \
+            str(get_current_site(request))+"/handlerequest/"
+        print(callback_url)
+        notes = {'order-type': "basic order from the website", 'key': 'value'}
+        razorpay_order = razorpay_client.order.create(dict(
+            amount=final_price*100, currency=order_currency, notes=notes, receipt=order.order_id, payment_capture='0'))
+        print(razorpay_order['id'])
+        order.razorpay_order_id = razorpay_order['id']
+        order.save()
+
+        return render(request, 'firstapp/payment/paymentsummaryrazorpay.html', {'order': order, 'order_id': razorpay_order['id'], 'orderId': order.order_id, 'final_price': final_price, 'razorpay_merchant_id': settings.razorpay_id, 'callback_url': callback_url})
+    else:
+        return HttpResponse("505 Not Found")
